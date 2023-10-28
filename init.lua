@@ -67,12 +67,35 @@ vim.opt.rtp:prepend(lazypath)
 require('lazy').setup({
   -- NOTE: First, some plugins that don't require any configuration
 
-  -- Git related plugins
-  'tpope/vim-fugitive',
+  'tpope/vim-fugitive',          -- Git related plugins
   'tpope/vim-rhubarb',
+  'tpope/vim-endwise',           -- endwise closing language word
+  'tpope/vim-surround',          -- change surrounds
+  'tpope/vim-sleuth',            -- Detect tabstop and shiftwidth automatically
+  'NvChad/nvim-colorizer.lua',   -- color Highlighter, css, sass, etc.
+  -- 'rktjmp/shipwright.nvim',
+  -- 'rktjmp/lush.nvim',
 
-  -- Detect tabstop and shiftwidth automatically
-  'tpope/vim-sleuth',
+  {
+    -- my own color scheme
+    dir = '~/misc/puma-nvim',
+    -- 'JesseChavez/puma-nvim',
+    priority = 1000,
+    config = function()
+      vim.cmd.colorscheme 'puma'
+    end,
+  },
+
+  'navarasu/onedark.nvim',               -- Theme inspired by Atom
+  'rebelot/kanagawa.nvim',               -- alternative color scheme
+  'folke/tokyonight.nvim',               -- another alternative color scheme
+  'jeetsukumaran/vim-filebeagle',        -- simple file navigation
+  -- 'HerringtonDarkholme/yats.vim',        -- typescript syntax and indentation
+  -- 'maxmellon/vim-jsx-pretty',            -- fixes tsx indentation issue in yats
+  'mustache/vim-mustache-handlebars',    -- support for mustache and handlebars
+  'slim-template/vim-slim',              -- support for slim templates
+  'vim-ruby/vim-ruby',
+  { 'tpope/vim-rails', ft = 'ruby' },    -- rails additions
 
   -- NOTE: This is where your plugins related to LSP can be installed.
   --  The configuration is done below. Search for lspconfig to find it below.
@@ -150,28 +173,8 @@ require('lazy').setup({
     },
   },
 
-  {
-    -- Theme inspired by Atom
-    'navarasu/onedark.nvim',
-    priority = 1000,
-    config = function()
-      vim.cmd.colorscheme 'onedark'
-    end,
-  },
-
-  {
-    -- Set lualine as statusline
-    'nvim-lualine/lualine.nvim',
-    -- See `:help lualine.txt`
-    opts = {
-      options = {
-        icons_enabled = false,
-        theme = 'onedark',
-        component_separators = '|',
-        section_separators = '',
-      },
-    },
-  },
+  -- Set lualine as statusline
+  'nvim-lualine/lualine.nvim',
 
   {
     -- Add indentation guides even on blank lines
@@ -179,7 +182,11 @@ require('lazy').setup({
     -- Enable `lukas-reineke/indent-blankline.nvim`
     -- See `:help ibl`
     main = 'ibl',
-    opts = {},
+    opts = {
+      indent = { highlight = highlight, char = '┆' },
+      -- indent = { highlight = highlight, char = '▏' },
+
+    },
   },
 
   -- "gc" to comment visual regions/lines
@@ -333,12 +340,18 @@ vim.keymap.set('n', '<leader>sr', require('telescope.builtin').resume, { desc = 
 vim.defer_fn(function()
   require('nvim-treesitter.configs').setup {
     -- Add languages to be installed here that you want installed for treesitter
-    ensure_installed = { 'c', 'cpp', 'go', 'lua', 'python', 'rust', 'tsx', 'javascript', 'typescript', 'vimdoc', 'vim', 'bash' },
+    ensure_installed = { 'c', 'yaml', 'go', 'lua', 'python', 'ruby', 'tsx', 'javascript', 'typescript', 'tsx', 'vimdoc', 'vim', 'bash', 'comment' },
 
     -- Autoinstall languages that are not installed. Defaults to false (but you can change for yourself!)
     auto_install = false,
 
-    highlight = { enable = true },
+    highlight = {
+      enable = true,
+      -- list of language that will be disabled
+      -- disable = { 'ruby', 'typescript', 'tsx', 'javascript' },
+      -- disable = { 'ruby' },
+      disable = { 'python' },
+    },
     indent = { enable = true },
     incremental_selection = {
       enable = true,
@@ -401,6 +414,26 @@ vim.keymap.set('n', '[d', vim.diagnostic.goto_prev, { desc = 'Go to previous dia
 vim.keymap.set('n', ']d', vim.diagnostic.goto_next, { desc = 'Go to next diagnostic message' })
 vim.keymap.set('n', '<leader>e', vim.diagnostic.open_float, { desc = 'Open floating diagnostic message' })
 vim.keymap.set('n', '<leader>q', vim.diagnostic.setloclist, { desc = 'Open diagnostics list' })
+
+-- overrides default diagnostic default (text to right is removed since is too much noise)
+vim.diagnostic.config({
+  virtual_text = false,
+  signs = true,
+  underline = true,
+  update_in_insert = true,
+  severity_sort = false,
+  float = {
+    focus = false,
+    border = 'rounded'
+  }
+})
+
+local signs = { Error = '✗', Warn = '⚠', Hint = '‣', Info = '•' }
+
+for type, icon in pairs(signs) do
+  local hl = 'DiagnosticSign' .. type
+  vim.fn.sign_define(hl, { text = icon, texthl = hl, numhl = hl })
+end
 
 -- [[ Configure LSP ]]
 --  This function gets run when an LSP connects to a particular buffer.
@@ -473,12 +506,14 @@ require('mason-lspconfig').setup()
 --  define the property 'filetypes' to the map in question.
 local servers = {
   -- clangd = {},
-  -- gopls = {},
   -- pyright = {},
   -- rust_analyzer = {},
-  -- tsserver = {},
   -- html = { filetypes = { 'html', 'twig', 'hbs'} },
 
+  gopls = {},
+  solargraph = {},
+  tsserver = {},
+  eslint = {},
   lua_ls = {
     Lua = {
       workspace = { checkThirdParty = false },
@@ -519,7 +554,7 @@ local luasnip = require 'luasnip'
 require('luasnip.loaders.from_vscode').lazy_load()
 luasnip.config.setup {}
 
-cmp.setup {
+cmp.setup({
   snippet = {
     expand = function(args)
       luasnip.lsp_expand(args.body)
@@ -533,7 +568,8 @@ cmp.setup {
     ['<C-Space>'] = cmp.mapping.complete {},
     ['<CR>'] = cmp.mapping.confirm {
       behavior = cmp.ConfirmBehavior.Replace,
-      select = true,
+      -- set to false to not to autocomplete on cr
+      select = false,
     },
     ['<Tab>'] = cmp.mapping(function(fallback)
       if cmp.visible() then
@@ -558,7 +594,92 @@ cmp.setup {
     { name = 'nvim_lsp' },
     { name = 'luasnip' },
   },
-}
+})
 
 -- The line beneath this is called `modeline`. See `:help modeline`
 -- vim: ts=2 sts=2 sw=2 et
+--
+local custom_codedark = require('lualine.themes.codedark')
+
+custom_codedark.normal.a.bg = '#98c379'
+custom_codedark.normal.b.fg = '#98c379'
+
+require('lualine').setup({
+  options = {
+    icons_enabled = false,
+    -- theme = 'onedark',
+    -- theme = 'modus-vivendi',
+    theme = custom_codedark,
+    component_separators = '|',
+    section_separators = '',
+  },
+  tabline = {
+    lualine_a = {'buffers'},
+    lualine_b = {},
+    lualine_c = {},
+    lualine_x = {},
+    lualine_y = {},
+    lualine_z = {'tabs'}
+  }
+})
+
+-- Setup colorizer configuration
+require('colorizer').setup({})
+
+-- CUSTOM ========================================================
+-- ===================== Basic Settings ==========================
+
+--- basic settings
+vim.opt.colorcolumn   = '81'              -- vertical line
+vim.opt.splitbelow    = true              -- put new windows below current
+vim.opt.splitright    = true              -- put new vertical splits to right
+
+--- search, copy, paste, spell, ignore settings
+vim.opt.incsearch  = true                              -- find the next match as we type the search
+vim.opt.hlsearch   = true                              -- highlight searches by default
+vim.opt.clipboard  = vim.opt.clipboard + 'unnamedplus' -- copy to system clipboard
+vim.opt.complete   = vim.opt.complete + 'kspell'       -- spell check
+vim.opt.wildignore = vim.opt.wildignore + 'node_modules,log,tmp'
+
+-- remove dot from auto indent
+vim.cmd [[autocmd FileType ruby setlocal indentkeys-=.]]
+
+-- suppress filebeagle key mapping, by defaults binds <leader>f
+vim.cmd[[
+let g:filebeagle_suppress_keymaps = 1
+map <silent> - <Plug>FileBeagleOpenCurrentBufferDir
+]]
+
+-- ============================== spell checking =======================
+vim.keymap.set('n', 'rr', ":!go run main.go<cr>", { noremap = true })
+
+vim.api.nvim_create_autocmd({ "BufRead", "BufNewFile" }, {
+  pattern = { "*.txt", "*.md", "*.rb", '*.yml', '*.js', '*.ts', '*.tsx', '*.lua', '*.vim', '*.sh', 'COMMIT_EDITMSG' },
+  command = "setlocal spell"
+})
+-- function to debug and customise color schemes for old vim regex syntax engine
+-- run in command mode :call SynStack()
+vim.cmd [[
+  function! SynStack()
+    if !exists("*synstack")
+      return
+    endif
+    echo map(synstack(line('.'), col('.')), 'synIDattr(v:val, "name")')
+  endfunction
+]]
+
+-- ============================== fonts =======================
+if vim.g.neovide then
+  vim.opt.guifont = 'Noto Sans Mono:h11'
+end
+
+-- function to debug and customise color schemes for old vim regex syntax engine
+-- run in command mode :call SynStack()
+vim.cmd [[
+  function! SynStack()
+    if !exists("*synstack")
+      return
+    endif
+    echo map(synstack(line('.'), col('.')), 'synIDattr(v:val, "name")')
+  endfunction
+]]
