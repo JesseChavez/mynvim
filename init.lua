@@ -77,7 +77,7 @@ require('lazy').setup({
   -- 'rktjmp/lush.nvim',
 
   {
-    -- my own color scheme
+    -- My own color scheme
     dir = '~/misc/puma-nvim',
     -- 'JesseChavez/puma-nvim',
     priority = 1000,
@@ -90,8 +90,6 @@ require('lazy').setup({
   'rebelot/kanagawa.nvim',               -- alternative color scheme
   'folke/tokyonight.nvim',               -- another alternative color scheme
   'jeetsukumaran/vim-filebeagle',        -- simple file navigation
-  -- 'HerringtonDarkholme/yats.vim',        -- typescript syntax and indentation
-  -- 'maxmellon/vim-jsx-pretty',            -- fixes tsx indentation issue in yats
   'mustache/vim-mustache-handlebars',    -- support for mustache and handlebars
   'slim-template/vim-slim',              -- support for slim templates
   'vim-ruby/vim-ruby',
@@ -340,7 +338,7 @@ vim.keymap.set('n', '<leader>sr', require('telescope.builtin').resume, { desc = 
 vim.defer_fn(function()
   require('nvim-treesitter.configs').setup {
     -- Add languages to be installed here that you want installed for treesitter
-    ensure_installed = { 'c', 'yaml', 'go', 'lua', 'python', 'ruby', 'tsx', 'javascript', 'typescript', 'tsx', 'vimdoc', 'vim', 'bash', 'comment' },
+    ensure_installed = { 'c', 'yaml', 'go', 'lua', 'python', 'ruby', 'javascript', 'typescript', 'tsx', 'vimdoc', 'vim', 'bash', 'comment' },
 
     -- Autoinstall languages that are not installed. Defaults to false (but you can change for yourself!)
     auto_install = false,
@@ -348,8 +346,6 @@ vim.defer_fn(function()
     highlight = {
       enable = true,
       -- list of language that will be disabled
-      -- disable = { 'ruby', 'typescript', 'tsx', 'javascript' },
-      -- disable = { 'ruby' },
       disable = { 'python' },
     },
     indent = { enable = true },
