@@ -71,14 +71,14 @@ require('lazy').setup({
   'tpope/vim-rhubarb',
   'tpope/vim-endwise',           -- endwise closing language word
   'tpope/vim-surround',          -- change surrounds
-  'tpope/vim-sleuth',            -- Detect tabstop and shiftwidth automatically
+  -- 'tpope/vim-sleuth',            -- Detect tabstop and shiftwidth automatically
   'NvChad/nvim-colorizer.lua',   -- color Highlighter, css, sass, etc.
   -- 'rktjmp/shipwright.nvim',
   -- 'rktjmp/lush.nvim',
 
   {
     -- My own color scheme
-    dir = '~/misc/puma-nvim',
+    dir = '~/own/puma-nvim',
     -- 'JesseChavez/puma-nvim',
     priority = 1000,
     config = function()
@@ -275,6 +275,19 @@ vim.o.completeopt = 'menuone,noselect'
 
 -- NOTE: You should make sure your terminal supports this
 vim.o.termguicolors = true
+
+-- Indentation
+vim.o.tabstop = 2        -- Number of spaces a tab represents
+vim.o.shiftwidth = 2     -- Number of spaces for each indentation
+vim.o.expandtab = true   -- Convert tabs to spaces
+vim.o.smartindent = true -- Automatically indent new lines
+-- vim.o.wrap = false       -- Disable line wrapping
+
+-- visual
+vim.opt.list = true
+-- vim.opt.listchars = { eol = "↵", trail = "~", tab = "→ ", nbsp = "␣" }
+vim.opt.listchars = { trail = "‡", tab = "→ ", nbsp = "␣" }
+-- vim.opt.listchars = { trail = "‡", tab = "· ", nbsp = "␣" }
 
 -- [[ Basic Keymaps ]]
 
@@ -508,7 +521,8 @@ local servers = {
 
   gopls = {},
   solargraph = {},
-  tsserver = {},
+  -- tsserver = {},
+  ts_ls = {},
   eslint = {},
   lua_ls = {
     Lua = {
@@ -640,6 +654,46 @@ vim.opt.wildignore = vim.opt.wildignore + 'node_modules,log,tmp'
 -- remove dot from auto indent
 vim.cmd [[autocmd FileType ruby setlocal indentkeys-=.]]
 
+-- go, zig - 4 tab indent, no spaces
+vim.api.nvim_create_autocmd("FileType", {
+  pattern = { "go", "zig" },
+  callback = function()
+    vim.opt.tabstop = 4
+    vim.opt.shiftwidth = 4
+    vim.opt.expandtab = false
+  end
+})
+
+-- sass & css - 4 tab indent, no spaces
+vim.api.nvim_create_autocmd("FileType", {
+  pattern = { "scss", "css" },
+  callback = function()
+    vim.opt.tabstop = 4
+    vim.opt.shiftwidth = 4
+    vim.opt.expandtab = false
+  end
+})
+
+-- html files & templates - 2 tab indent, spaces
+vim.api.nvim_create_autocmd("FileType", {
+  pattern = { "html", "tmpl", "erb", "slim" },
+  callback = function()
+    vim.opt.tabstop = 2
+    vim.opt.shiftwidth = 2
+    vim.opt.expandtab = true
+  end
+})
+
+-- ruby, javascript, typescript, etc. - 2 tab indent, spaces
+vim.api.nvim_create_autocmd("FileType", {
+  pattern = { "rb", "js", "ts", "tsx" },
+  callback = function()
+    vim.opt.tabstop = 2
+    vim.opt.shiftwidth = 2
+    vim.opt.expandtab = true
+  end
+})
+
 -- suppress filebeagle key mapping, by defaults binds <leader>f
 vim.cmd[[
 let g:filebeagle_suppress_keymaps = 1
@@ -653,16 +707,6 @@ vim.api.nvim_create_autocmd({ "BufRead", "BufNewFile" }, {
   pattern = { "*.txt", "*.md", "*.rb", '*.yml', '*.js', '*.ts', '*.tsx', '*.lua', '*.vim', '*.sh', 'COMMIT_EDITMSG' },
   command = "setlocal spell"
 })
--- function to debug and customise color schemes for old vim regex syntax engine
--- run in command mode :call SynStack()
-vim.cmd [[
-  function! SynStack()
-    if !exists("*synstack")
-      return
-    endif
-    echo map(synstack(line('.'), col('.')), 'synIDattr(v:val, "name")')
-  endfunction
-]]
 
 -- ============================== fonts =======================
 if vim.g.neovide then
