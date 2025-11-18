@@ -166,6 +166,15 @@ vim.o.scrolloff = 10
 -- See `:help 'confirm'`
 vim.o.confirm = true
 
+-- =============== My custom config ==================================
+--- basic settings
+vim.opt.colorcolumn = '81' -- vertical line
+-- visual
+-- vim.opt.listchars = { eol = "↵", trail = "~", tab = "→ ", nbsp = "␣" }
+-- vim.opt.listchars = { trail = "‡", tab = "· ", nbsp = "␣" }
+vim.opt.listchars = { trail = '‡', tab = '→ ', nbsp = '␣' }
+-- ===================================================================
+
 -- [[ Basic Keymaps ]]
 --  See `:help vim.keymap.set()`
 
@@ -175,6 +184,7 @@ vim.keymap.set('n', '<Esc>', '<cmd>nohlsearch<CR>')
 
 -- Diagnostic keymaps
 vim.keymap.set('n', '<leader>q', vim.diagnostic.setloclist, { desc = 'Open diagnostic [Q]uickfix list' })
+vim.keymap.set('n', '<leader>e', vim.diagnostic.open_float, { desc = 'Open floating diagnostic message' })
 
 -- Exit terminal mode in the builtin terminal with a shortcut that is a bit easier
 -- for people to discover. Otherwise, you normally need to press <C-\><C-n>, which
@@ -246,6 +256,15 @@ rtp:prepend(lazypath)
 --
 -- NOTE: Here is where you install your plugins.
 require('lazy').setup({
+  'JesseChavez/puma-nvim', -- Own theme
+  'navarasu/onedark.nvim', -- Theme inspired by Atom
+  'rebelot/kanagawa.nvim', -- alternative color scheme
+  'jeetsukumaran/vim-filebeagle', -- simple file navigation
+  'mustache/vim-mustache-handlebars', -- support for mustache and handlebars
+  'slim-template/vim-slim', -- support for slim templates
+  'vim-ruby/vim-ruby',
+  { 'tpope/vim-rails', ft = 'ruby' }, -- rails additions
+
   -- NOTE: Plugins can be added with a link (or for a github repo: 'owner/repo' link).
   'NMAC427/guess-indent.nvim', -- Detect tabstop and shiftwidth automatically
 
@@ -628,30 +647,42 @@ require('lazy').setup({
 
       -- Diagnostic Config
       -- See :help vim.diagnostic.Opts
+      -- vim.diagnostic.config {
+      --   severity_sort = true,
+      --   float = { border = 'rounded', source = 'if_many' },
+      --   underline = { severity = vim.diagnostic.severity.ERROR },
+      --   signs = vim.g.have_nerd_font and {
+      --     text = {
+      --       [vim.diagnostic.severity.ERROR] = '󰅚 ',
+      --       [vim.diagnostic.severity.WARN] = '󰀪 ',
+      --       [vim.diagnostic.severity.INFO] = '󰋽 ',
+      --       [vim.diagnostic.severity.HINT] = '󰌶 ',
+      --     },
+      --   } or {},
+      --   virtual_text = {
+      --     source = 'if_many',
+      --     spacing = 2,
+      --     format = function(diagnostic)
+      --       local diagnostic_message = {
+      --         [vim.diagnostic.severity.ERROR] = diagnostic.message,
+      --         [vim.diagnostic.severity.WARN] = diagnostic.message,
+      --         [vim.diagnostic.severity.INFO] = diagnostic.message,
+      --         [vim.diagnostic.severity.HINT] = diagnostic.message,
+      --       }
+      --       return diagnostic_message[diagnostic.severity]
+      --     end,
+      --   },
+      -- }
+      -- overrides default diagnostic default (text to right is removed since is too much noise)
       vim.diagnostic.config {
-        severity_sort = true,
-        float = { border = 'rounded', source = 'if_many' },
-        underline = { severity = vim.diagnostic.severity.ERROR },
-        signs = vim.g.have_nerd_font and {
-          text = {
-            [vim.diagnostic.severity.ERROR] = '󰅚 ',
-            [vim.diagnostic.severity.WARN] = '󰀪 ',
-            [vim.diagnostic.severity.INFO] = '󰋽 ',
-            [vim.diagnostic.severity.HINT] = '󰌶 ',
-          },
-        } or {},
-        virtual_text = {
-          source = 'if_many',
-          spacing = 2,
-          format = function(diagnostic)
-            local diagnostic_message = {
-              [vim.diagnostic.severity.ERROR] = diagnostic.message,
-              [vim.diagnostic.severity.WARN] = diagnostic.message,
-              [vim.diagnostic.severity.INFO] = diagnostic.message,
-              [vim.diagnostic.severity.HINT] = diagnostic.message,
-            }
-            return diagnostic_message[diagnostic.severity]
-          end,
+        virtual_text = false,
+        signs = true,
+        underline = true,
+        update_in_insert = true,
+        severity_sort = false,
+        float = {
+          focus = false,
+          border = 'rounded',
         },
       }
 
@@ -1011,6 +1042,12 @@ require('lazy').setup({
     },
   },
 })
+
+-- suppress filebeagle key mapping, by defaults binds <leader>f
+vim.cmd [[
+let g:filebeagle_suppress_keymaps = 1
+map <silent> - <Plug>FileBeagleOpenCurrentBufferDir
+]]
 
 -- The line beneath this is called `modeline`. See `:help modeline`
 -- vim: ts=2 sts=2 sw=2 et
