@@ -263,6 +263,14 @@ rtp:prepend(lazypath)
 --
 -- NOTE: Here is where you install your plugins.
 require('lazy').setup({
+  { 'JesseChavez/puma-nvim' }, -- Own theme
+  { 'jeetsukumaran/vim-filebeagle' }, -- simple file navigation
+  { 'mustache/vim-mustache-handlebars' }, -- support for mustache and handlebars
+  { 'slim-template/vim-slim' }, -- support for slim templates
+  { 'vim-ruby/vim-ruby' },
+  { 'tpope/vim-rails', ft = 'ruby' }, -- rails additions
+  { 'navarasu/onedark.nvim', opts = {} }, -- Theme inspired by Atom
+  { 'rebelot/kanagawa.nvim', opts = {} }, -- alternative color scheme
   -- NOTE: Plugins can be added via a link or github org/name. To run setup automatically, use `opts = {}`
   { 'NMAC427/guess-indent.nvim', opts = {} },
 
