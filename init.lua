@@ -164,6 +164,14 @@ vim.o.scrolloff = 10
 -- See `:help 'confirm'`
 vim.o.confirm = true
 
+--- === my basic settings =================================================
+vim.opt.colorcolumn = '81' -- vertical line
+-- visual
+-- vim.opt.listchars = { eol = "↵", trail = "~", tab = "→ ", nbsp = "␣" }
+-- vim.opt.listchars = { trail = "‡", tab = "· ", nbsp = "␣" }
+vim.opt.listchars = { trail = '‡', tab = '→ ', nbsp = '␣' }
+-- ========================================================================
+
 -- [[ Basic Keymaps ]]
 --  See `:help vim.keymap.set()`
 
