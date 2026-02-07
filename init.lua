@@ -935,5 +935,11 @@ require('lazy').setup({
   },
 })
 
+-- suppress filebeagle key mapping, by defaults binds <leader>f
+vim.cmd [[
+let g:filebeagle_suppress_keymaps = 1
+map <silent> - <Plug>FileBeagleOpenCurrentBufferDir
+]]
+
 -- The line beneath this is called `modeline`. See `:help modeline`
 -- vim: ts=2 sts=2 sw=2 et
