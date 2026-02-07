@@ -267,6 +267,7 @@ rtp:prepend(lazypath)
 -- NOTE: Here is where you install your plugins.
 require('lazy').setup({
   { 'JesseChavez/puma-nvim' }, -- Own theme
+  { 'tpope/vim-fugitive' },
   { 'jeetsukumaran/vim-filebeagle' }, -- simple file navigation
   { 'mustache/vim-mustache-handlebars' }, -- support for mustache and handlebars
   { 'slim-template/vim-slim' }, -- support for slim templates
