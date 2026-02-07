@@ -960,6 +960,20 @@ require('lazy').setup({
   },
 })
 
+-- ruby, javascript, typescript, etc. - 2 tab indent, spaces
+vim.api.nvim_create_autocmd('FileType', {
+  pattern = { 'rb', 'js', 'ts', 'tsx' },
+  command = 'setlocal shiftwidth=2 tabstop=2 softtabstop=2 expandtab',
+  group = vim.api.nvim_create_augroup('indent_2_spaces', { clear = true }),
+})
+
+---- sass & css - 4 tab indent, no spaces
+vim.api.nvim_create_autocmd('FileType', {
+  pattern = { 'css', 'scss' },
+  command = 'setlocal shiftwidth=4 tabstop=4 softtabstop=4 noexpandtab',
+  group = vim.api.nvim_create_augroup('indent_4_spaces_tab', { clear = true }),
+})
+
 -- suppress filebeagle key mapping, by defaults binds <leader>f
 vim.cmd [[
 let g:filebeagle_suppress_keymaps = 1
